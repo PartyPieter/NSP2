@@ -4,7 +4,17 @@ import pandas as pd
 from lmfit import models
 
 begin_t = 0.0041
-Temperatures = [20, 36, 41]
+T_above = [20.1, 47.7, 39.8]
+T_under = [19.9,45.0, 36.3]
+Temperatures = []
+Temp_err = []
+
+print(len(T_above))
+for i in range(len(T_above)):
+   
+  Temperatures.append(0.5 * (T_above[i] + T_under[i])) 
+  Temp_err.append(0.5 * 0.002 * (T_above[i] + T_under[i]) + 1)
+
 x = 0.06
 x_err = 0.002
 v = [1500]
@@ -30,7 +40,7 @@ for i in range(aantal_metingen):
          cut_values.append(i)
 
     # time it takes for wave to move is time of first point where amplitude is high enough - time start of measurement
-    t  = (time[cut_values[0]] - begin_t) / 1000
+    t  = (time[cut_values[0]] - begin_t) / 1000 #+- (8 * 10 **(-5) + (2 + 2/3) * 10 ** (-6))
 
     print(t)
 
@@ -65,11 +75,11 @@ print("yoyoyo")
 
 # fitting in motion
 V_curve_model = models.Model(V_fit_func)
-
 weights = np.array([1 / err for err in v_err])
-V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights , p1 = 1, p2 = -0.5, p3 = -0.5)
+V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights, xerr = Temp_err, p1 = 1, p2 = -0.5, p3 = -0.5)
 
 # print and plot fit
 V_fit_result.plot(numpoints = 1000)
+plt.errorbar(Temperatures, v, xerr = Temp_err, yerr = None, fmt = 'none' )
 plt.show()
 print(V_fit_result.fit_report())
