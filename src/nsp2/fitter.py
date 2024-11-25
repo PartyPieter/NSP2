@@ -4,8 +4,8 @@ import pandas as pd
 from lmfit import models
 
 begin_t = 0.0041
-T_above = [20.1, 47.7, 39.8]
-T_under = [19.9,45.0, 36.3]
+T_above = [20 ,20.1, 47.7, 39.8,40,39,38.5,38,32.2,31.6,29.3]
+T_under = [20 ,19.9,45.0, 36.3, 35.2, 34.7, 34.1, 33.7, 31.9, 30.9, 29.1]
 Temperatures = []
 Temp_err = []
 
@@ -21,14 +21,14 @@ v = [1500]
 v_err = [x_err * 2 / (0.12 / 1500) ]
 df = []
 
-cut_value = 3
+cut_value = 8
 
 # executing speed calculations for every measurement
-aantal_metingen = 2
+aantal_metingen = 10
 for i in range(aantal_metingen):
    
     cut_values = []
-    df = pd.read_csv("meting_" + str(i) + ".csv", sep = "\t")
+    df = pd.read_csv("meting_" + str(i +1) + ".csv", sep = "\t")
     time = df.iloc[:,0]
     Amplitude = df.iloc[:,1]
     avg_amp = sum(Amplitude)/len(Amplitude)
