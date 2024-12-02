@@ -10,6 +10,11 @@ Temperatures = []
 Temp_err = []
 
 print(len(T_above))
+df = pd.read_csv("temps.csv", sep = ",")
+T_above = df.iloc[:,0]
+T_under = df.iloc[:,1]
+
+print(len(T_above))
 for i in range(len(T_above)):
    
   Temperatures.append(0.5 * (T_above[i] + T_under[i])) 
@@ -17,18 +22,20 @@ for i in range(len(T_above)):
 
 x = 0.06
 x_err = 0.002
-v = [1500]
-v_err = [x_err * 2 / (0.12 / 1500) ]
+#v = [1500]
+#v_err = [x_err * 2 / (0.12 / 1500) ]
+v = []
+v_err = []
 df = []
 
 cut_value = 8
 
 # executing speed calculations for every measurement
-aantal_metingen = 10
+aantal_metingen = 62
 for i in range(aantal_metingen):
-   
+
     cut_values = []
-    df = pd.read_csv("meting_" + str(i +1) + ".csv", sep = "\t")
+    df = pd.read_csv("meting_" + str(i) + ".csv", sep = "\t")
     time = df.iloc[:,0]
     Amplitude = df.iloc[:,1]
     avg_amp = sum(Amplitude)/len(Amplitude)
@@ -48,15 +55,15 @@ for i in range(aantal_metingen):
     v_err.append(2 * x_err / t)
 
     # plot time-amplitude curve
-    plt.plot(time, Amplitude)
-    plt.plot(time[cut_values[0]], Amplitude[cut_values[0]], 'ro', markersize = 5)
-    plt.xlabel("t (ms) ")
-    plt.ylabel("Amp")
-    plt.title("time - amplitude curve")
-    plt.show()
+ #   plt.plot(time, Amplitude)
+ #   plt.plot(time[cut_values[0]], Amplitude[cut_values[0]], 'ro', markersize = 5)
+ #   plt.xlabel("t (ms) ")
+ #   plt.ylabel("Amp")
+#    plt.title("time - amplitude curve")
+ #   plt.show()
 
-print(v)
-
+print(len(Temperatures))
+print(len(v))
 # plotting V-T plot
 plt.plot(Temperatures, v, 'bo')
 plt.xlabel("Temperature (C) ")
@@ -65,18 +72,16 @@ plt.title("Speed of sound through water at given temperature ")
 plt.show()
 
 # TO BE PERFECTED
-print(v_err)
-def V_fit_func(T, p1, p2, p3):
+def V_fit_func(T, p1, p2, p3, p4):
   #  V = p1**p2 * T**p3
-    v = p1 + p2 * T + p3 * T**2
+    v = p1 + p2 * T + p3 * T**2 + p4 * T**3
     return v 
 
-print("yoyoyo")
 
 # fitting in motion
 V_curve_model = models.Model(V_fit_func)
 weights = np.array([1 / err for err in v_err])
-V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights, xerr = Temp_err, p1 = 1, p2 = -0.5, p3 = -0.5)
+V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights, xerr = Temp_err, p1 = 1, p2 = -0.5, p3 = -0.5, p4 = 1)
 
 # print and plot fit
 V_fit_result.plot(numpoints = 1000)
