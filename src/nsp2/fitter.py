@@ -49,42 +49,47 @@ for i in range(aantal_metingen):
     # time it takes for wave to move is time of first point where amplitude is high enough - time start of measurement
     t  = (time[cut_values[0]] - begin_t) / 1000 #+- (8 * 10 **(-5) + (2 + 2/3) * 10 ** (-6))
 
-    print(t)
+    #print(t)
 
     v.append((2 * x) / t)
     v_err.append(2 * x_err / t)
 
-    # plot time-amplitude curve
- #   plt.plot(time, Amplitude)
- #   plt.plot(time[cut_values[0]], Amplitude[cut_values[0]], 'ro', markersize = 5)
- #   plt.xlabel("t (ms) ")
- #   plt.ylabel("Amp")
-#    plt.title("time - amplitude curve")
- #   plt.show()
+   # plot time-amplitude curve
+    plt.plot(time, Amplitude)
+    plt.plot(time[cut_values[0]], Amplitude[cut_values[0]], 'ro', markersize = 5)
+    plt.xlabel("Tijd (ms) ")
+    plt.ylabel("Amplitude (A.U.)")
+    plt.title("Tijd - Amplitude curve")
+    
+    plt.show()
 
 print(len(Temperatures))
 print(len(v))
 # plotting V-T plot
 plt.plot(Temperatures, v, 'bo')
-plt.xlabel("Temperature (C) ")
-plt.ylabel("Speed (m/s)")
+plt.xlabel("Temperatuur (C) ")
+plt.ylabel("Snelheid (m/s)")
 plt.title("Speed of sound through water at given temperature ")
 plt.show()
 
 # TO BE PERFECTED
-def V_fit_func(T, p1, p2, p3, p4):
+def V_T_fit(T, p1, p2, p3, p4, p5):
   #  V = p1**p2 * T**p3
-    v = p1 + p2 * T + p3 * T**2 + p4 * T**3
+    v = p1 + p2 * T + p3 * T**2 + p4 * T**3 + p5 * T**4 
     return v 
 
 
 # fitting in motion
-V_curve_model = models.Model(V_fit_func)
+V_curve_model = models.Model(V_T_fit)
 weights = np.array([1 / err for err in v_err])
-V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights, xerr = Temp_err, p1 = 1, p2 = -0.5, p3 = -0.5, p4 = 1)
+V_fit_result = V_curve_model.fit(v, T=Temperatures, weights = weights, xerr = Temp_err, p1 = 1, p2 = -0.5, p3 = -0.5, p4 = 1, p5 = -0.0008)
 
 # print and plot fit
 V_fit_result.plot(numpoints = 1000)
-plt.errorbar(Temperatures, v, xerr = Temp_err, yerr = None, fmt = 'none' )
+plt.errorbar(Temperatures, v, xerr = Temp_err, yerr = None, fmt = 'none')
+plt.xlabel("Temperatuur (C)")
+plt.ylabel("Snelheids (m/s)")
+plt.xlim(0,60)
+plt.grid()
 plt.show()
 print(V_fit_result.fit_report())
